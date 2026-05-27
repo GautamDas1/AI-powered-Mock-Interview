@@ -12,9 +12,14 @@ export async function analyzeResume(resumeText: string) {
     messages: [
       {
         role: 'system',
-        content: `You are an expert resume analyst. Analyze the resume and extract information in valid JSON format only. No markdown, no code fences, just pure JSON.
+        content: `You are an expert resume analyst. First, determine if the provided document is actually a resume or CV. Then analyze and extract information in valid JSON format only. No markdown, no code fences, just pure JSON.
+
+IMPORTANT: If the document is NOT a resume/CV (e.g. it's a research paper, invoice, receipt, novel, random document, assignment, notes, etc.), set "isResume" to false and provide a "rejectionReason".
+
 Return this exact structure:
 {
+  "isResume": true or false,
+  "rejectionReason": "reason why this is not a resume (only if isResume is false, otherwise empty string)",
   "name": "candidate name",
   "skills": ["skill1", "skill2"],
   "experience": "brief summary of experience",
@@ -27,7 +32,7 @@ Return this exact structure:
       },
       {
         role: 'user',
-        content: `Analyze this resume:\n\n${resumeText}`,
+        content: `Analyze this document and determine if it's a resume:\n\n${resumeText}`,
       },
     ],
     temperature: 0.3,
@@ -41,7 +46,7 @@ Return this exact structure:
     // Try extracting JSON from the response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) return JSON.parse(jsonMatch[0]);
-    return { name: 'Candidate', skills: [], experience: '', education: '', projects: [], strengths: [], suggestedRole: 'Software Developer', experienceLevel: 'fresher' };
+    return { isResume: false, rejectionReason: 'Could not analyze the document.', name: 'Candidate', skills: [], experience: '', education: '', projects: [], strengths: [], suggestedRole: 'Software Developer', experienceLevel: 'fresher' };
   }
 }
 
@@ -135,7 +140,7 @@ export async function evaluateAnswer(
   } catch {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) return JSON.parse(jsonMatch[0]);
-    return { score: 5, feedback: 'Could not evaluate properly.', strengths: [], improvements: [], confidenceIndicators: { clarity: 5, depth: 5, relevance: 5, communication: 5 }, sampleAnswer: '' };
+    return { score: 0, feedback: 'Could not evaluate properly.', strengths: [], improvements: [], confidenceIndicators: { clarity: 0, depth: 0, relevance: 0, communication: 0 }, sampleAnswer: '' };
   }
 }
 

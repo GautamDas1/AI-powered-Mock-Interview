@@ -35,10 +35,10 @@ export default function Dashboard() {
   const avgScore = results.length ? Math.round(results.reduce((s, r) => s + r.score, 0) / results.length * 10) : 0;
 
   const radarData = results.length ? [
-    { subject: 'Clarity', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.clarity || 5), 0) / results.length) },
-    { subject: 'Depth', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.depth || 5), 0) / results.length) },
-    { subject: 'Relevance', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.relevance || 5), 0) / results.length) },
-    { subject: 'Communication', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.communication || 5), 0) / results.length) },
+    { subject: 'Clarity', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.clarity ?? 0), 0) / results.length) },
+    { subject: 'Depth', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.depth ?? 0), 0) / results.length) },
+    { subject: 'Relevance', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.relevance ?? 0), 0) / results.length) },
+    { subject: 'Communication', value: Math.round(results.reduce((s, r) => s + (r.confidenceIndicators?.communication ?? 0), 0) / results.length) },
   ] : [];
 
   const barData = results.map((r, i) => ({ name: `Q${i + 1}`, score: r.score, fill: COLORS[i % COLORS.length] }));
