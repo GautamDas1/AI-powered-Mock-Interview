@@ -1,73 +1,65 @@
-# React + TypeScript + Vite
+# AI-Powered Mock Interview System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, interactive web application that provides AI-driven mock interviews. Users can upload their resumes, conduct simulated interviews in a dedicated room, and view their performance analytics on a comprehensive dashboard.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Resume Upload & Parsing**: Easily upload resumes (PDF) to tailor the interview questions based on the candidate's experience.
+- **Interactive Interview Room**: A dedicated space for conducting the mock interview with real-time feedback.
+- **Performance Dashboard**: Visual analytics and statistics of past interviews using interactive charts.
+- **AI-Powered**: Integrates with the Groq API for ultra-fast, intelligent interview responses and evaluations.
+- **Modern UI/UX**: Built with a sleek dark theme, glassmorphism effects, and smooth animations using Tailwind CSS and Framer Motion.
 
-## React Compiler
+## 💻 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS 4
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Charts**: Recharts
+- **PDF Processing**: pdf.js
+- **AI Integration**: Groq SDK
 
-## Expanding the ESLint configuration
+## 🛠️ Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js (v18 or higher recommended)
+- npm or yarn
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/GautamDas1/AI-powered-Mock-Interview.git
+   cd AI-powered-Mock-Interview
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+3. **Set up Environment Variables:**
+   Create a `.env` file in the root directory and copy the contents from `.env.example`. You will need to get an API key from Groq.
+   
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Open `.env` and add your Groq API key:
+   ```env
+   VITE_GROQ_API_KEY=your_actual_api_key_here
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser:**
+   Navigate to `http://localhost:5173` to view the application.
+
+## 🔒 Security Note
+
+Please ensure that you **never** commit your actual `.env` file to version control. The `.gitignore` file is already configured to ignore `.env`, and the repository provides a `.env.example` file for reference.
