@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, ArrowRight, Upload, Mic, BarChart3, Brain, CheckCircle, Sparkles, Target, MessageSquare } from 'lucide-react';
+import { ArrowRight, Upload, Mic, BarChart3, Brain, CheckCircle, Sparkles, Target, MessageSquare, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const IMAGES = [
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/1.02464a56.png', bg: '#F4845F', panel: '#F79B7F', name: 'Blaze' },
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/2.b977faab.png', bg: '#6BBF7A', panel: '#85CC92', name: 'Sprout' },
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/3.4df853b4.png', bg: '#E882B4', panel: '#ED9DC4', name: 'Rosie' },
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/4.4457fbce.png', bg: '#6EB5FF', panel: '#8DC4FF', name: 'Drift' },
+const CHARACTERS = [
+  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/1.02464a56.png', name: 'Blaze', accent: '#F4845F' },
+  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/2.b977faab.png', name: 'Sprout', accent: '#6BBF7A' },
+  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/3.4df853b4.png', name: 'Rosie', accent: '#E882B4' },
+  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/4.4457fbce.png', name: 'Drift', accent: '#6EB5FF' },
 ];
+
+const GRAIN_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E`;
 
 const NAV_LINKS = [
   { label: 'Features', id: 'features' },
@@ -16,136 +18,152 @@ const NAV_LINKS = [
   { label: 'About', id: 'about' },
 ];
 
-const TRANSITION_MS = 650;
-const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
-const GRAIN_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E`;
-
-type Role = 'center' | 'left' | 'right' | 'back';
-
 export default function Hero() {
   const navigate = useNavigate();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const lockRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [charIndex, setCharIndex] = useState(0);
+  const [charFade, setCharFade] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => { IMAGES.forEach(({ src }) => { const img = new Image(); img.src = src; }); }, []);
-  useEffect(() => { const check = () => setIsMobile(window.innerWidth < 640); check(); window.addEventListener('resize', check); return () => window.removeEventListener('resize', check); }, []);
+  useEffect(() => { CHARACTERS.forEach(({ src }) => { const img = new Image(); img.src = src; }); }, []);
+  useEffect(() => { const c = () => setIsMobile(window.innerWidth < 768); c(); window.addEventListener('resize', c); return () => window.removeEventListener('resize', c); }, []);
 
-  const handleNavigate = useCallback((dir: 'next' | 'prev') => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setActiveIndex((prev) => dir === 'next' ? (prev + 1) % 4 : (prev + 3) % 4);
-    lockRef.current = setTimeout(() => setIsAnimating(false), TRANSITION_MS);
-  }, [isAnimating]);
+  /* Auto-rotate characters */
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setCharFade(false);
+      setTimeout(() => { setCharIndex(p => (p + 1) % CHARACTERS.length); setCharFade(true); }, 300);
+    }, 3500);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
 
-  useEffect(() => () => { if (lockRef.current) clearTimeout(lockRef.current); }, []);
-  useEffect(() => { const interval = setInterval(() => { handleNavigate('next'); }, 4000); return () => clearInterval(interval); }, [handleNavigate]);
+  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  const activeChar = CHARACTERS[charIndex];
 
-  const roles: Record<number, Role> = { [activeIndex]: 'center', [(activeIndex + 3) % 4]: 'left', [(activeIndex + 1) % 4]: 'right', [(activeIndex + 2) % 4]: 'back' };
-
-  const getRoleStyle = (role: Role): React.CSSProperties => {
-    const base: React.CSSProperties = { position: 'absolute', aspectRatio: '0.6 / 1', transition: [`transform ${TRANSITION_MS}ms ${EASING}`, `filter ${TRANSITION_MS}ms ${EASING}`, `opacity ${TRANSITION_MS}ms ${EASING}`, `left ${TRANSITION_MS}ms ${EASING}`, `bottom ${TRANSITION_MS}ms ${EASING}`, `height ${TRANSITION_MS}ms ${EASING}`].join(', '), willChange: 'transform, filter, opacity' };
-    switch (role) {
-      case 'center': return { ...base, transform: `translateX(-50%) scale(${isMobile ? 1.25 : 1.68})`, filter: 'blur(0px)', opacity: 1, zIndex: 20, left: '50%', height: isMobile ? '60%' : '92%', bottom: isMobile ? '22%' : '0' };
-      case 'left': return { ...base, transform: 'translateX(-50%) scale(1)', filter: 'blur(2px)', opacity: 0.85, zIndex: 10, left: isMobile ? '20%' : '30%', height: isMobile ? '16%' : '28%', bottom: isMobile ? '32%' : '12%' };
-      case 'right': return { ...base, transform: 'translateX(-50%) scale(1)', filter: 'blur(2px)', opacity: 0.85, zIndex: 10, left: isMobile ? '80%' : '70%', height: isMobile ? '16%' : '28%', bottom: isMobile ? '32%' : '12%' };
-      case 'back': return { ...base, transform: 'translateX(-50%) scale(1)', filter: 'blur(4px)', opacity: 1, zIndex: 5, left: '50%', height: isMobile ? '13%' : '22%', bottom: isMobile ? '32%' : '12%' };
-    }
-  };
-
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  /* ─── Shared section styles ─── */
   const sectionStyle: React.CSSProperties = { padding: '80px 24px', maxWidth: 900, margin: '0 auto' };
   const sectionTitle: React.CSSProperties = { fontFamily: "'Anton', sans-serif", fontSize: 'clamp(28px, 5vw, 44px)', color: 'white', textTransform: 'uppercase', letterSpacing: '-0.01em', lineHeight: 1.1, marginBottom: 12, textAlign: 'center' };
   const sectionSub: React.CSSProperties = { color: '#8b949e', fontSize: 14, lineHeight: 1.6, textAlign: 'center', maxWidth: 500, margin: '0 auto 40px' };
   const cardStyle: React.CSSProperties = { padding: '28px 24px', borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' };
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* ════════ HERO SECTION ════════ */}
-      <div style={{ backgroundColor: IMAGES[activeIndex].bg, transition: `background-color ${TRANSITION_MS}ms ${EASING}`, position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50, opacity: 0.4, backgroundImage: `url("${GRAIN_SVG}")`, backgroundSize: '200px 200px', backgroundRepeat: 'repeat' }} />
+    <div style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0d1117' }}>
+      <style>{`
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+        @keyframes pulseRing { 0% { transform: scale(0.8); opacity:0.6; } 100% { transform: scale(2.2); opacity:0; } }
+        @keyframes fadeSlideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
 
-        {/* Ghost text */}
-        <div style={{ position: 'absolute', inset: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', userSelect: 'none', zIndex: 2, top: '18%' }}>
-          <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(90px, 28vw, 380px)', fontWeight: 900, color: 'white', lineHeight: 1, textTransform: 'uppercase', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>3D SHAPE</span>
-        </div>
+      {/* ════════ HERO ════════ */}
+      <div style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', paddingTop: 64 }}>
+        {/* BG layers */}
+        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.12, backgroundImage: `url("${GRAIN_SVG}")`, backgroundSize: '200px 200px' }} />
+        <div className="absolute pointer-events-none" style={{ width: 700, height: 700, borderRadius: '50%', right: -100, top: -100, background: `radial-gradient(circle, ${activeChar.accent}18 0%, transparent 70%)`, filter: 'blur(80px)', transition: 'background 800ms ease' }} />
+        <div className="absolute pointer-events-none" style={{ width: 500, height: 500, borderRadius: '50%', left: -100, bottom: -100, background: 'radial-gradient(circle, rgba(110,181,255,0.06) 0%, transparent 70%)', filter: 'blur(80px)' }} />
 
-        {/* ─── NAV BAR ─── */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '16px 16px' : '20px 40px', zIndex: 60 }}>
-          <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(20px, 2.5vw, 30px)', color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' }}>TOONHUB</span>
+        {/* NAV — fixed */}
+        <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '14px 16px' : '16px 40px', borderBottom: '1px solid rgba(255,255,255,0.06)', backgroundColor: 'rgba(13,17,23,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+          <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(20px, 2.5vw, 28px)', color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' }}>TOONHUB</span>
           {!isMobile && (
             <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-              {NAV_LINKS.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => scrollTo(link.id)}
-                  style={{
-                    fontFamily: "'Anton', sans-serif",
-                    fontSize: 16,
-                    fontWeight: 400,
-                    color: 'white',
-                    opacity: 0.9,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'opacity 200ms, transform 200ms',
-                    padding: '4px 0',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  {link.label}
-                </button>
+              {NAV_LINKS.map(link => (
+                <button key={link.id} onClick={() => scrollTo(link.id)} style={{ fontFamily: "'Anton', sans-serif", fontSize: 15, color: 'white', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'none', border: 'none', cursor: 'pointer', transition: 'opacity 200ms, color 200ms', padding: '4px 0' }} onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = '#F4845F'; }} onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = 'white'; }}>{link.label}</button>
               ))}
             </nav>
           )}
-          <button onClick={() => navigate('/upload')} style={{ padding: '8px 20px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 200ms', letterSpacing: '0.02em' }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.35)'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; }}>
-            Get Started
+          <button onClick={() => navigate('/upload')} style={{ padding: '9px 22px', borderRadius: 10, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>Get Started</button>
+        </header>
+
+        {/* HERO CONTENT — split layout */}
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10, padding: isMobile ? '32px 20px' : '0 60px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0 : 48, maxWidth: 1100, width: '100%', flexDirection: isMobile ? 'column' : 'row' }}>
+
+            {/* LEFT — Text */}
+            <div style={{ flex: 1, textAlign: isMobile ? 'center' : 'left', animation: 'fadeSlideIn 0.7s ease forwards' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 20, backgroundColor: 'rgba(244,132,95,0.08)', border: '1px solid rgba(244,132,95,0.2)', marginBottom: 24 }}>
+                <Sparkles size={14} style={{ color: '#F4845F' }} />
+                <span style={{ color: '#F4845F', fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Powered by Groq AI</span>
+              </div>
+
+              <h1 style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(36px, 6vw, 72px)', color: 'white', lineHeight: 1.05, textTransform: 'uppercase', letterSpacing: '-0.02em', marginBottom: 18 }}>
+                ACE YOUR NEXT<br /><span style={{ color: '#F4845F' }}>INTERVIEW</span> WITH AI
+              </h1>
+
+              <p style={{ color: '#8b949e', fontSize: 'clamp(14px, 1.4vw, 17px)', lineHeight: 1.65, maxWidth: 460, margin: isMobile ? '0 auto 28px' : '0 0 28px 0' }}>
+                Upload your resume, practice with personalized AI questions, speak your answers, and get instant feedback with a detailed improvement roadmap.
+              </p>
+
+              <div style={{ display: 'flex', gap: 12, justifyContent: isMobile ? 'center' : 'flex-start', flexWrap: 'wrap', marginBottom: 24 }}>
+                <button onClick={() => navigate('/upload')} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 32px', borderRadius: 12, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(244,132,95,0.4)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                  Start Interview <ArrowRight size={18} />
+                </button>
+                <button onClick={() => scrollTo('how-it-works')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 24px', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}>
+                  How It Works
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: 20, justifyContent: isMobile ? 'center' : 'flex-start', flexWrap: 'wrap' }}>
+                {['Free to use', 'No sign-up', 'Instant results'].map(t => (
+                  <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <CheckCircle size={13} style={{ color: '#6BBF7A' }} />
+                    <span style={{ color: '#8b949e', fontSize: 12 }}>{t}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT — Character showcase */}
+            <div style={{ flex: isMobile ? 'none' : '0 0 380px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: isMobile ? 32 : 0, position: 'relative' }}>
+              {/* Glow ring behind character */}
+              <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: `radial-gradient(circle, ${activeChar.accent}20 0%, transparent 70%)`, transition: 'background 600ms', filter: 'blur(40px)' }} />
+              {/* Spinning orbit ring */}
+              <div style={{ position: 'absolute', width: 320, height: 320, borderRadius: '50%', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '1px dashed rgba(255,255,255,0.06)', animation: 'spinSlow 30s linear infinite' }} />
+
+              {/* Character image */}
+              <div style={{ position: 'relative', width: isMobile ? 240 : 340, height: isMobile ? 320 : 440, animation: 'float 4s ease-in-out infinite' }}>
+                <img
+                  src={activeChar.src}
+                  alt={activeChar.name}
+                  style={{
+                    width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom center',
+                    opacity: charFade ? 1 : 0,
+                    transform: charFade ? 'scale(1)' : 'scale(0.95)',
+                    transition: 'opacity 300ms ease, transform 300ms ease',
+                    filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))',
+                  }}
+                />
+              </div>
+
+              {/* Character selector dots */}
+              <div style={{ display: 'flex', gap: 10, marginTop: 12, position: 'relative', zIndex: 5 }}>
+                {CHARACTERS.map((ch, i) => (
+                  <button
+                    key={ch.name}
+                    onClick={() => { setCharFade(false); setTimeout(() => { setCharIndex(i); setCharFade(true); }, 250); }}
+                    style={{
+                      width: charIndex === i ? 28 : 10, height: 10, borderRadius: 5,
+                      backgroundColor: charIndex === i ? ch.accent : 'rgba(255,255,255,0.15)',
+                      border: 'none', cursor: 'pointer',
+                      transition: 'all 300ms ease',
+                    }}
+                    aria-label={ch.name}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* Scroll indicator */}
+        <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', paddingBottom: 20 }}>
+          <button onClick={() => scrollTo('features')} style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, opacity: 0.5, transition: 'opacity 200ms' }} onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }} onMouseLeave={e => { e.currentTarget.style.opacity = '0.5'; }}>
+            <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Explore</span>
+            <ChevronDown size={18} />
           </button>
         </div>
-
-        {/* Tagline */}
-        {!isMobile && (
-          <div style={{ position: 'absolute', top: 68, right: 40, zIndex: 60 }}>
-            <span style={{ fontSize: 11, fontWeight: 500, color: 'white', opacity: 0.7, letterSpacing: '0.18em', textTransform: 'uppercase' }}>AI MOCK INTERVIEW © 2025. PRACTICE MAKES PERFECT.</span>
-          </div>
-        )}
-
-        {/* Carousel */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 3 }}>
-          {IMAGES.map((item, i) => (
-            <div key={i} style={getRoleStyle(roles[i])}>
-              <img src={item.src} alt={`${item.name} figurine`} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom center' }} />
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom-left */}
-        <div style={{ position: 'absolute', bottom: isMobile ? 24 : 80, left: isMobile ? 16 : 96, zIndex: 60, maxWidth: 360 }}>
-          <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: isMobile ? 8 : 12, fontSize: isMobile ? 16 : 22, color: 'white', opacity: 0.95 }}>AI MOCK INTERVIEW</p>
-          {!isMobile && <p style={{ fontSize: 14, color: 'white', opacity: 0.85, lineHeight: 1.6, marginBottom: 20 }}>Practice interviews with AI. Upload your resume, get personalized questions, and receive instant feedback to ace your next interview.</p>}
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={() => handleNavigate('prev')} style={{ width: isMobile ? 48 : 64, height: isMobile ? 48 : 64, borderRadius: '50%', background: 'transparent', border: '2px solid white', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'transform 150ms, background-color 150ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.backgroundColor = 'transparent'; }}><ArrowLeft size={26} strokeWidth={2.25} /></button>
-            <button onClick={() => handleNavigate('next')} style={{ width: isMobile ? 48 : 64, height: isMobile ? 48 : 64, borderRadius: '50%', background: 'transparent', border: '2px solid white', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'transform 150ms, background-color 150ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.backgroundColor = 'transparent'; }}><ArrowRight size={26} strokeWidth={2.25} /></button>
-          </div>
-        </div>
-
-        {/* Bottom-right CTA */}
-        <button onClick={() => navigate('/upload')} style={{ position: 'absolute', bottom: isMobile ? 24 : 80, right: isMobile ? 16 : 40, zIndex: 60, fontFamily: "'Anton', sans-serif", fontSize: 'clamp(20px, 4vw, 56px)', color: 'white', opacity: 0.95, letterSpacing: '-0.02em', lineHeight: 1, textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'opacity 200ms' }} onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }} onMouseLeave={e => { e.currentTarget.style.opacity = '0.95'; }}>
-          START NOW
-          <span style={{ width: isMobile ? 32 : 48, height: isMobile ? 32 : 48, border: '2px solid white', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><ArrowRight size={isMobile ? 16 : 24} strokeWidth={2.25} /></span>
-        </button>
       </div>
 
-      {/* ════════ FEATURES SECTION ════════ */}
+      {/* ════════ FEATURES ════════ */}
       <div id="features" style={{ backgroundColor: '#0d1117', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
         <div style={sectionStyle}>
           <h2 style={sectionTitle}>Powerful <span style={{ color: '#F4845F' }}>Features</span></h2>
@@ -162,9 +180,7 @@ export default function Hero() {
               const Icon = f.icon;
               return (
                 <div key={i} style={cardStyle}>
-                  <div style={{ width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: `${f.color}15`, marginBottom: 16 }}>
-                    <Icon size={22} style={{ color: f.color }} />
-                  </div>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: `${f.color}15`, marginBottom: 16 }}><Icon size={22} style={{ color: f.color }} /></div>
                   <p style={{ color: 'white', fontSize: 15, fontWeight: 700, marginBottom: 8 }}>{f.title}</p>
                   <p style={{ color: '#8b949e', fontSize: 13, lineHeight: 1.6 }}>{f.desc}</p>
                 </div>
@@ -174,29 +190,33 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ════════ HOW IT WORKS ════════ */}
+      {/* ════════ HOW IT WORKS — with characters ════════ */}
       <div id="how-it-works" style={{ backgroundColor: '#0a0e14', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
         <div style={sectionStyle}>
           <h2 style={sectionTitle}>How It <span style={{ color: '#6BBF7A' }}>Works</span></h2>
           <p style={sectionSub}>Three simple steps to ace your next interview.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[
-              { step: '01', icon: Upload, color: '#F4845F', title: 'Upload Your Resume', desc: 'Drop your PDF resume and our AI will extract your skills, experience, projects, and suggest a target role.' },
-              { step: '02', icon: Mic, color: '#6EB5FF', title: 'Take the Interview', desc: 'Choose your mode — Technical, HR/Behavioral, or Mixed. Answer questions using voice or text with AI-powered follow-ups.' },
-              { step: '03', icon: BarChart3, color: '#6BBF7A', title: 'Get Your Results', desc: 'Receive detailed scores, AI feedback, ideal answers, and a personalized improvement roadmap to keep growing.' },
+              { step: '01', icon: Upload, color: '#F4845F', title: 'Upload Your Resume', desc: 'Drop your PDF resume and our AI will extract your skills, experience, projects, and suggest a target role.', charIdx: 0 },
+              { step: '02', icon: Mic, color: '#6EB5FF', title: 'Take the Interview', desc: 'Choose your mode — Technical, HR/Behavioral, or Mixed. Answer questions using voice or text with AI-powered follow-ups.', charIdx: 3 },
+              { step: '03', icon: BarChart3, color: '#6BBF7A', title: 'Get Your Results', desc: 'Receive detailed scores, AI feedback, ideal answers, and a personalized improvement roadmap to keep growing.', charIdx: 1 },
             ].map((s, i) => {
               const Icon = s.icon;
               return (
-                <div key={i} style={{ display: 'flex', gap: 24, alignItems: 'flex-start', padding: '32px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                  <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: `${s.color}12`, border: `2px solid ${s.color}30` }}>
-                    <Icon size={24} style={{ color: s.color }} />
+                <div key={i} style={{ display: 'flex', gap: isMobile ? 16 : 28, alignItems: 'center', padding: '28px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none', flexDirection: isMobile ? 'column' : (i % 2 === 0 ? 'row' : 'row-reverse') }}>
+                  {/* Character thumbnail */}
+                  <div style={{ flexShrink: 0, width: isMobile ? 100 : 140, height: isMobile ? 130 : 180, position: 'relative' }}>
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `radial-gradient(circle, ${s.color}12 0%, transparent 70%)`, filter: 'blur(20px)' }} />
+                    <img src={CHARACTERS[s.charIdx].src} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.3))' }} />
                   </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                      <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 14, color: s.color, letterSpacing: '0.1em' }}>STEP {s.step}</span>
-                      <p style={{ color: 'white', fontSize: 18, fontWeight: 700 }}>{s.title}</p>
+                  {/* Text */}
+                  <div style={{ flex: 1, textAlign: isMobile ? 'center' : 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: `${s.color}12`, border: `1.5px solid ${s.color}30` }}><Icon size={18} style={{ color: s.color }} /></div>
+                      <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, color: s.color, letterSpacing: '0.1em' }}>STEP {s.step}</span>
                     </div>
-                    <p style={{ color: '#8b949e', fontSize: 14, lineHeight: 1.65, maxWidth: 500 }}>{s.desc}</p>
+                    <p style={{ color: 'white', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{s.title}</p>
+                    <p style={{ color: '#8b949e', fontSize: 14, lineHeight: 1.65, maxWidth: 450 }}>{s.desc}</p>
                   </div>
                 </div>
               );
@@ -210,18 +230,24 @@ export default function Hero() {
         <div style={{ ...sectionStyle, textAlign: 'center' }}>
           <h2 style={sectionTitle}>Ready to <span style={{ color: '#E882B4' }}>Practice?</span></h2>
           <p style={sectionSub}>Start your AI mock interview now. It only takes a few minutes.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            <button onClick={() => navigate('/upload')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '16px 48px', borderRadius: 14, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 17, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms', fontFamily: "'Anton', sans-serif", letterSpacing: '0.04em', textTransform: 'uppercase' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.backgroundColor = '#e07350'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.backgroundColor = '#F4845F'; }}>
-              Start Interview <ArrowRight size={20} />
-            </button>
-            <div style={{ display: 'flex', gap: 24, marginTop: 12 }}>
-              {['Free to use', 'No sign-up needed', 'Instant results'].map(t => (
-                <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <CheckCircle size={14} style={{ color: '#6BBF7A' }} />
-                  <span style={{ color: '#8b949e', fontSize: 13 }}>{t}</span>
-                </div>
-              ))}
-            </div>
+          {/* Character row */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 32 }}>
+            {CHARACTERS.map((ch, i) => (
+              <div key={ch.name} style={{ width: isMobile ? 56 : 80, height: isMobile ? 72 : 105, opacity: 0.7, transition: 'all 300ms', cursor: 'default' }}>
+                <img src={ch.src} alt={ch.name} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom', filter: `drop-shadow(0 4px 12px ${ch.accent}40)`, animation: `float ${3.5 + i * 0.4}s ease-in-out infinite`, animationDelay: `${i * 0.3}s` }} />
+              </div>
+            ))}
+          </div>
+          <button onClick={() => navigate('/upload')} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 48px', borderRadius: 14, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 17, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms', fontFamily: "'Anton', sans-serif", letterSpacing: '0.04em', textTransform: 'uppercase' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>
+            Start Interview <ArrowRight size={20} />
+          </button>
+          <div style={{ display: 'flex', gap: 24, marginTop: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
+            {['Free to use', 'No sign-up needed', 'Instant results'].map(t => (
+              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CheckCircle size={14} style={{ color: '#6BBF7A' }} />
+                <span style={{ color: '#8b949e', fontSize: 13 }}>{t}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -240,7 +266,6 @@ export default function Hero() {
             ))}
           </div>
         </div>
-        {/* Footer */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '20px 24px', textAlign: 'center' }}>
           <p style={{ color: '#8b949e', fontSize: 12, opacity: 0.6 }}>© 2025 ToonHub. Built with React, Groq AI & ❤️</p>
         </div>

@@ -43,6 +43,16 @@ export default function ResumeUpload() {
 
       setResumeText(text);
       const data = await analyzeResume(text);
+
+      // ── Validate: is this actually a resume? ──
+      if (data.isResume === false) {
+        const reason = data.rejectionReason || 'The uploaded file does not appear to be a resume.';
+        setError(`⚠️ This doesn't look like a resume. ${reason} Please upload your resume or CV.`);
+        setFile(null);
+        setIsAnalyzing(false);
+        return;
+      }
+
       setResumeData(data);
       setParsedData(data);
       setAnalysisComplete(true);
