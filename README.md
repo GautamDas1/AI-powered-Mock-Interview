@@ -22,7 +22,7 @@ A modern, interactive web application that provides AI-driven mock interviews. U
 
 ## 🛠️ Getting Started
 
-### Prerequisites
+### Prerequisites.
 
 - Node.js (v18 or higher recommended)
 - npm or yarn
