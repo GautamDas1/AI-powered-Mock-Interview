@@ -24,13 +24,16 @@ export default function ResumeUpload() {
       setError('Please upload a PDF or TXT file.');
       return;
     }
+    // Reset previous analysis state before each new upload
     setFile(selectedFile);
     setError('');
+    setAnalysisComplete(false);
+    setParsedData(null);
     setIsAnalyzing(true);
 
     try {
       let text = '';
-      if (selectedFile.name.endsWith('.pdf')) {
+      if (lowerName.endsWith('.pdf')) {
         text = await extractTextFromPDF(selectedFile);
       } else {
         text = await selectedFile.text();
@@ -42,7 +45,6 @@ export default function ResumeUpload() {
         return;
       }
 
-      setResumeText(text);
       const data = await analyzeResume(text);
 
       // ── Validate: is this actually a resume? ──
@@ -54,6 +56,8 @@ export default function ResumeUpload() {
         return;
       }
 
+      // Only persist resume text after validation passes
+      setResumeText(text);
       setResumeData(data);
       setParsedData(data);
       setAnalysisComplete(true);
@@ -86,8 +90,10 @@ export default function ResumeUpload() {
     marginBottom: 6,
   };
 
-  const skills = ((parsedData as { skills?: string[] })?.skills || []) as string[];
-  const projects = ((parsedData as { projects?: string[] })?.projects || []) as string[];
+  const rawSkills = (parsedData as { skills?: unknown })?.skills;
+  const rawProjects = (parsedData as { projects?: unknown })?.projects;
+  const skills: string[] = Array.isArray(rawSkills) ? rawSkills as string[] : [];
+  const projects: string[] = Array.isArray(rawProjects) ? rawProjects as string[] : [];
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0d1117', fontFamily: "'Inter', sans-serif", display: 'flex', flexDirection: 'column' }}>
@@ -134,10 +140,14 @@ export default function ResumeUpload() {
           {/* ─── Upload area ─── */}
           <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
             <div
+              role="button"
+              tabIndex={0}
+              aria-label="Upload resume file"
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
               style={{
                 ...cardBg,
                 border: `2px dashed ${isDragging ? '#F4845F' : 'rgba(255,255,255,0.12)'}`,

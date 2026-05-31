@@ -21,6 +21,15 @@ export function startListening(
     return;
   }
 
+  // Stop any existing instance before creating a new one
+  if (recognition) {
+    recognition.onend = null;
+    recognition.onresult = null;
+    recognition.onerror = null;
+    try { recognition.stop(); } catch { /* ignore */ }
+    recognition = null;
+  }
+
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();

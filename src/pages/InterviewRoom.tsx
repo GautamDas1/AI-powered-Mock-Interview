@@ -83,7 +83,20 @@ export default function InterviewRoom() {
       });
       setLastFeedback(evaluation); setShowFeedback(true);
     } catch {
-      setLastFeedback({ score: 0, feedback: 'Evaluation unavailable', strengths: [], improvements: [] }); setShowFeedback(true);
+      const fallback = { score: 0, feedback: 'Evaluation unavailable', strengths: [], improvements: [], confidenceIndicators: { clarity: 0, depth: 0, relevance: 0, communication: 0 }, sampleAnswer: '' };
+      addResult({
+        questionId: question.id,
+        question: question.question,
+        answer: answer.trim(),
+        score: 0,
+        feedback: 'Evaluation unavailable — please check your connection.',
+        strengths: [],
+        improvements: [],
+        confidenceIndicators: { clarity: 0, depth: 0, relevance: 0, communication: 0 },
+        sampleAnswer: '',
+      });
+      setLastFeedback(fallback);
+      setShowFeedback(true);
     } finally { setIsEvaluating(false); }
   };
 

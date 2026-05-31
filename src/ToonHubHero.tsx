@@ -229,29 +229,27 @@ export default function ToonHubHero() {
           {/* Nav links (desktop) */}
           <nav className="hidden sm:flex items-center gap-8">
             {NAV_LINKS.map((link) => (
-              <a
+              <button
                 key={link}
-                href="#"
-                className="relative"
+                type="button"
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   fontSize: '14px',
                   fontWeight: 500,
                   color: 'white',
                   opacity: 0.85,
-                  textDecoration: 'none',
                   letterSpacing: '0.02em',
                   transition: 'opacity 200ms',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.opacity = '1';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.opacity = '0.85';
-                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.85'; }}
               >
                 {link}
-              </a>
+              </button>
             ))}
           </nav>
 
@@ -415,9 +413,9 @@ export default function ToonHubHero() {
         </div>
 
         {/* ── 6. Bottom-right "DISCOVER IT" ── */}
-        <a
-          href="#"
-          className="absolute bottom-6 right-4 sm:bottom-20 sm:right-10 flex items-center gap-2 no-underline"
+        <button
+          type="button"
+          className="absolute bottom-6 right-4 sm:bottom-20 sm:right-10 flex items-center gap-2"
           style={{
             zIndex: 60,
             fontFamily: "'Anton', sans-serif",
@@ -428,15 +426,13 @@ export default function ToonHubHero() {
             letterSpacing: '-0.02em',
             lineHeight: 1,
             textTransform: 'uppercase',
-            textDecoration: 'none',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
             transition: 'opacity 200ms',
           }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.opacity = '1';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.opacity = '0.95';
-          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.95'; }}
         >
           DISCOVER IT
           <span
@@ -453,7 +449,7 @@ export default function ToonHubHero() {
               strokeWidth={2.25}
             />
           </span>
-        </a>
+        </button>
       </div>
     </div>
   );

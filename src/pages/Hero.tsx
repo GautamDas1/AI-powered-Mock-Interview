@@ -24,6 +24,7 @@ export default function Hero() {
   const [charIndex, setCharIndex] = useState(0);
   const [charFade, setCharFade] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { CHARACTERS.forEach(({ src }) => { const img = new Image(); img.src = src; }); }, []);
   useEffect(() => { const c = () => setIsMobile(window.innerWidth < 768); c(); window.addEventListener('resize', c); return () => window.removeEventListener('resize', c); }, []);
@@ -32,9 +33,12 @@ export default function Hero() {
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setCharFade(false);
-      setTimeout(() => { setCharIndex(p => (p + 1) % CHARACTERS.length); setCharFade(true); }, 300);
+      fadeTimeoutRef.current = setTimeout(() => { setCharIndex(p => (p + 1) % CHARACTERS.length); setCharFade(true); }, 300);
     }, 3500);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+    };
   }, []);
 
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });

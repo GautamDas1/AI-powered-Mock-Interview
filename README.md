@@ -4,7 +4,7 @@ A modern, interactive web application that provides AI-driven mock interviews. U
 
 ## 🚀 Features
 
-- **Resume Upload & Parsing**: Easily upload resumes (PDF) to tailor the interview questions based on the candidate's experience.
+- **Resume Upload & Parsing**: Easily upload resumes (PDF or TXT) to tailor the interview questions based on the candidate's experience.
 - **Interactive Interview Room**: A dedicated space for conducting the mock interview with real-time feedback.
 - **Performance Dashboard**: Visual analytics and statistics of past interviews using interactive charts.
 - **AI-Powered**: Integrates with the Groq API for ultra-fast, intelligent interview responses and evaluations.
@@ -22,7 +22,7 @@ A modern, interactive web application that provides AI-driven mock interviews. U
 
 ## 🛠️ Getting Started
 
-### Prerequisites.
+### Prerequisites
 
 - Node.js (v18 or higher recommended)
 - npm or yarn
