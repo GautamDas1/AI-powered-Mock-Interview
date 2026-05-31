@@ -19,7 +19,8 @@ export default function ResumeUpload() {
   const [parsedData, setParsedData] = useState<Record<string, unknown> | null>(null);
 
   const handleFile = async (selectedFile: File) => {
-    if (!selectedFile.name.endsWith('.pdf') && !selectedFile.name.endsWith('.txt')) {
+    const lowerName = selectedFile.name.toLowerCase();
+    if (!lowerName.endsWith('.pdf') && !lowerName.endsWith('.txt')) {
       setError('Please upload a PDF or TXT file.');
       return;
     }

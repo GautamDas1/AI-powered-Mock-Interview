@@ -19,15 +19,17 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { results, resumeData, roadmap, setRoadmap, resetInterview } = useInterview();
   const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(false);
+  const [roadmapError, setRoadmapError] = useState<string | null>(null);
   const [expandedQ, setExpandedQ] = useState<number | null>(null);
 
   useEffect(() => {
     if (!results.length) { navigate('/setup'); return; }
     if (!roadmap) {
       setIsLoadingRoadmap(true);
+      setRoadmapError(null);
       generateRoadmap(results as unknown as Record<string, unknown>[], resumeData as unknown as Record<string, unknown>)
         .then((data) => setRoadmap(data))
-        .catch(() => {})
+        .catch(() => setRoadmapError('Could not generate roadmap right now. Please retry.'))
         .finally(() => setIsLoadingRoadmap(false));
     }
   }, [results, resumeData, roadmap, setRoadmap, navigate]);
@@ -101,10 +103,10 @@ export default function Dashboard() {
         {/* ─── SCORE CARDS ─── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
           {[
-            { label: 'OVERALL SCORE', value: `${avgScore}%`, icon: Trophy, color: '#F4845F' },
+        { label: 'OVERALL SCORE', value: `${avgScore}%`, icon: Trophy, color: '#F4845F' },
             { label: 'QUESTIONS', value: `${results.length}`, icon: Target, color: '#6EB5FF' },
-            { label: 'BEST SCORE', value: `${Math.max(...results.map(r => r.score))}/10`, icon: TrendingUp, color: '#6BBF7A' },
-            { label: 'AVG SCORE', value: `${(results.reduce((s, r) => s + r.score, 0) / results.length).toFixed(1)}/10`, icon: BookOpen, color: '#E882B4' },
+            { label: 'BEST SCORE', value: `${results.length ? Math.max(...results.map(r => r.score)) : 0}/10`, icon: TrendingUp, color: '#6BBF7A' },
+            { label: 'AVG SCORE', value: `${results.length ? (results.reduce((s, r) => s + r.score, 0) / results.length).toFixed(1) : '0.0'}/10`, icon: BookOpen, color: '#E882B4' },
           ].map((card, i) => {
             const Icon = card.icon;
             return (
@@ -279,6 +281,8 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+          ) : roadmapError ? (
+            <p style={{ color: '#F4845F', fontSize: 13, textAlign: 'center', padding: '16px 0' }}>{roadmapError}</p>
           ) : null}
         </motion.div>
 

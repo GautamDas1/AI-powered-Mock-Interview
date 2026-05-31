@@ -146,7 +146,7 @@ export default function InterviewRoom() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
                 <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', backgroundColor: `${accent}18`, color: accent }}>{question.type}</span>
                 <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', backgroundColor: 'rgba(255,255,255,0.05)', color: '#8b949e' }}>{question.difficulty}</span>
-                <button onClick={toggleSpeak} style={{ marginLeft: 'auto', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backgroundColor: isSpeaking ? `${accent}18` : 'rgba(255,255,255,0.04)', border: `1px solid ${isSpeaking ? `${accent}40` : 'rgba(255,255,255,0.06)'}`, color: isSpeaking ? accent : '#8b949e', transition: 'all 200ms' }}>
+                <button onClick={toggleSpeak} aria-label={isSpeaking ? 'Stop speaking' : 'Read question aloud'} title={isSpeaking ? 'Stop speaking' : 'Read question aloud'} style={{ marginLeft: 'auto', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backgroundColor: isSpeaking ? `${accent}18` : 'rgba(255,255,255,0.04)', border: `1px solid ${isSpeaking ? `${accent}40` : 'rgba(255,255,255,0.06)'}`, color: isSpeaking ? accent : '#8b949e', transition: 'all 200ms' }}>
                   {isSpeaking ? <Volume2 size={16} /> : <VolumeX size={16} />}
                 </button>
               </div>
@@ -189,6 +189,8 @@ export default function InterviewRoom() {
                 {isSpeechSupported() && (
                   <button
                     onClick={toggleVoice}
+                    aria-label={isListening ? 'Stop recording' : 'Start voice input'}
+                    title={isListening ? 'Stop recording' : 'Start voice input'}
                     style={{
                       position: 'absolute', bottom: 16, right: 16,
                       width: 40, height: 40, borderRadius: '50%',

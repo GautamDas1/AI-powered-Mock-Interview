@@ -19,6 +19,7 @@ export default function InterviewSetup() {
   const [selectedMode, setSelectedMode] = useState(interviewMode);
   const [questionCount, setQuestionCount] = useState(5);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [setupError, setSetupError] = useState('');
 
   const handleStart = async () => {
     if (!resumeData) {
@@ -26,13 +27,19 @@ export default function InterviewSetup() {
       return;
     }
     setIsGenerating(true);
+    setSetupError('');
     try {
       setInterviewMode(selectedMode);
       const data = await generateQuestions(resumeData as unknown as Record<string, unknown>, selectedMode, questionCount);
-      setQuestions(data.questions || []);
+      const questions = data.questions || [];
+      if (questions.length === 0) {
+        setSetupError('Could not generate questions. Please try again.');
+        return;
+      }
+      setQuestions(questions);
       navigate('/interview');
-    } catch (err) {
-      console.error('Failed to generate questions:', err);
+    } catch {
+      setSetupError('Failed to generate questions. Please check your connection and try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -188,6 +195,12 @@ export default function InterviewSetup() {
           >
             {isGenerating ? <><Loader2 size={20} className="animate-spin" /> Generating Questions...</> : <>Start Interview <ArrowRight size={18} /></>}
           </motion.button>
+
+          {setupError && (
+            <div style={{ marginTop: 12, padding: '10px 16px', borderRadius: 10, backgroundColor: 'rgba(255,75,75,0.08)', border: '1px solid rgba(255,75,75,0.2)', color: '#ff6b6b', fontSize: 13, textAlign: 'center' }}>
+              {setupError}
+            </div>
+          )}
 
         </div>
       </main>

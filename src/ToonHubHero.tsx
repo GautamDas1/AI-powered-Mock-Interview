@@ -71,7 +71,7 @@ export default function ToonHubHero() {
       if (isAnimating) return;
       setIsAnimating(true);
       setActiveIndex((prev) =>
-        dir === 'next' ? (prev + 1) % 4 : (prev + 3) % 4,
+        dir === 'next' ? (prev + 1) % IMAGES.length : (prev + IMAGES.length - 1) % IMAGES.length,
       );
       lockRef.current = setTimeout(() => setIsAnimating(false), TRANSITION_MS);
     },
@@ -87,11 +87,12 @@ export default function ToonHubHero() {
   );
 
   /* ── Roles ── */
+  const len = IMAGES.length;
   const roles: Record<number, Role> = {
     [activeIndex]: 'center',
-    [(activeIndex + 3) % 4]: 'left',
-    [(activeIndex + 1) % 4]: 'right',
-    [(activeIndex + 2) % 4]: 'back',
+    [(activeIndex + len - 1) % len]: 'left',
+    [(activeIndex + 1) % len]: 'right',
+    [(activeIndex + 2) % len]: 'back',
   };
 
   /* ── Per-role styles ── */
