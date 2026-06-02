@@ -71,7 +71,7 @@ export default function Hero() {
 
         {/* NAV — fixed */}
         <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '14px 16px' : '16px 40px', borderBottom: '1px solid rgba(255,255,255,0.06)', backgroundColor: 'rgba(13,17,23,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-          <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(20px, 2.5vw, 28px)', color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' }}>TOONHUB</span>
+          <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(20px, 2.5vw, 28px)', color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' }}>InterviewAI</span>
           {!isMobile && (
             <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
               {NAV_LINKS.map(link => (
@@ -264,8 +264,8 @@ export default function Hero() {
       {/* ════════ ABOUT ════════ */}
       <div id="about" style={{ backgroundColor: '#0a0e14', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
         <div style={{ ...sectionStyle, paddingBottom: 40 }}>
-          <h2 style={sectionTitle}>About <span style={{ color: '#6EB5FF' }}>ToonHub</span></h2>
-          <p style={{ ...sectionSub, maxWidth: 600 }}>ToonHub is an AI-powered mock interview platform built to help developers, engineers, and professionals practice and improve their interview skills. Powered by Groq's Llama 3.3 70B model for intelligent, context-aware feedback.</p>
+          <h2 style={sectionTitle}>About <span style={{ color: '#6EB5FF' }}>InterviewAI</span></h2>
+          <p style={{ ...sectionSub, maxWidth: 600 }}>InterviewAI is an AI-powered mock interview platform built to help developers, engineers, and professionals practice and improve their interview skills. Powered by Groq's Llama 3.3 70B model for intelligent, context-aware feedback.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, maxWidth: 500, margin: '0 auto' }}>
             {[{ n: '100%', l: 'Free' }, { n: 'AI', l: 'Powered' }, { n: '3', l: 'Interview Modes' }].map(s => (
               <div key={s.l} style={{ textAlign: 'center', padding: '20px 0' }}>
@@ -275,8 +275,44 @@ export default function Hero() {
             ))}
           </div>
         </div>
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '20px 24px', textAlign: 'center' }}>
-          <p style={{ color: '#8b949e', fontSize: 12, opacity: 0.6 }}>© 2025 ToonHub. Built with React, Groq AI & ❤️</p>
+
+        {/* ─── FOOTER ─── */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '24px 24px 28px' }}>
+          <div style={{ maxWidth: 600, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {[
+                { label: 'Privacy Policy', path: '/privacy' },
+                { label: 'Terms of Service', path: '/terms' },
+                { label: 'Report Bug', href: 'https://github.com/GautamDas1/AI-powered-Mock-Interview/issues' },
+                { label: 'Contact', href: 'mailto:gautamdas@interviewai.app' },
+              ].map(link => (
+                'path' in link ? (
+                  <button
+                    key={link.label}
+                    onClick={() => navigate(link.path)}
+                    style={{ color: '#8b949e', fontSize: 12, background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 150ms' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#F4845F'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = '#8b949e'; }}
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#8b949e', fontSize: 12, textDecoration: 'none', transition: 'color 150ms' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#F4845F'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = '#8b949e'; }}
+                  >
+                    {link.label}
+                  </a>
+                )
+              ))}
+            </div>
+            <p style={{ color: '#8b949e', fontSize: 11, opacity: 0.5 }}>© 2025 InterviewAI. Built with React, Groq AI & ❤️</p>
+          </div>
         </div>
       </div>
     </div>

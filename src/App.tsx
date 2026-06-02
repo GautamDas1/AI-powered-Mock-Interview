@@ -8,6 +8,8 @@ import ResumeUpload from './pages/ResumeUpload';
 import InterviewSetup from './pages/InterviewSetup';
 import InterviewRoom from './pages/InterviewRoom';
 import Dashboard from './pages/Dashboard';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
             {/* Public */}
             <Route path="/" element={<Hero />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
 
             {/* Protected — require Google sign-in */}
             <Route path="/upload"    element={<ProtectedRoute><ResumeUpload /></ProtectedRoute>} />
