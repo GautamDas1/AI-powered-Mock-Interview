@@ -5,6 +5,7 @@ import { Mic, MicOff, Send, Volume2, VolumeX, ArrowRight, Loader2, Clock, Messag
 import { useInterview } from '../context/InterviewContext';
 import { evaluateAnswer } from '../services/groq';
 import { startListening, stopListening, speak, stopSpeaking, isSpeechSupported } from '../services/speech';
+import UserMenu from '../components/UserMenu';
 
 const GRAIN_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E`;
 const COLORS = ['#F4845F', '#6BBF7A', '#E882B4', '#6EB5FF'];
@@ -123,7 +124,7 @@ export default function InterviewRoom() {
         backgroundColor: 'rgba(13,17,23,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>TOONHUB</button>
+        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>InterviewAI</button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <Clock size={14} style={{ color: accent }} />
@@ -133,6 +134,7 @@ export default function InterviewRoom() {
             <MessageSquare size={14} style={{ color: accent }} />
             <span style={{ color: 'white', fontSize: 14, fontWeight: 600 }}>{currentQ + 1}<span style={{ opacity: 0.4 }}>/{questions.length}</span></span>
           </div>
+          <UserMenu />
         </div>
       </header>
 

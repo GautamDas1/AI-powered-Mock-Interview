@@ -5,6 +5,7 @@ import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Responsi
 import { Trophy, Target, TrendingUp, BookOpen, ArrowRight, Loader2, RotateCcw, Home, ChevronDown, ChevronUp } from 'lucide-react';
 import { useInterview } from '../context/InterviewContext';
 import { generateRoadmap } from '../services/groq';
+import UserMenu from '../components/UserMenu';
 
 const COLORS = ['#F4845F', '#6BBF7A', '#E882B4', '#6EB5FF'];
 
@@ -86,7 +87,8 @@ export default function Dashboard() {
           <button onClick={handleRetry} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#e6edf3', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><RotateCcw size={13} /> Retry</button>
           <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#e6edf3', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Home size={13} /> Home</button>
         </div>
-        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>TOONHUB</button>
+        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>InterviewAI</button>
+        <UserMenu />
       </header>
 
       {/* ─── CENTERED CONTENT ─── */}

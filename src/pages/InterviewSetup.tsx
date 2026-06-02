@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Code2, Users, Shuffle, Zap, ArrowRight, Loader2 } from 'lucide-react';
 import { useInterview } from '../context/InterviewContext';
 import { generateQuestions } from '../services/groq';
+import UserMenu from '../components/UserMenu';
 
 const MODES = [
   { id: 'technical' as const, label: 'TECHNICAL', icon: Code2, color: '#6EB5FF', desc: 'Data structures, algorithms, system design, coding concepts', bg: 'rgba(110,181,255,0.1)', border: 'rgba(110,181,255,0.3)' },
@@ -65,8 +66,11 @@ export default function InterviewSetup() {
         position: 'relative', zIndex: 10,
         borderBottom: '1px solid rgba(255,255,255,0.04)',
       }}>
-        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>TOONHUB</button>
-        <span style={{ fontSize: 11, fontWeight: 500, color: '#8b949e', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>STEP 2 OF 3</span>
+        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>InterviewAI</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 500, color: '#8b949e', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>STEP 2 OF 3</span>
+          <UserMenu />
+        </div>
       </header>
 
       {/* ─── MAIN CONTENT (fills remaining height, centers vertically) ─── */}

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Upload, Mic, BarChart3, Brain, CheckCircle, Sparkles, Target, MessageSquare, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import UserMenu from '../components/UserMenu';
 
 const CHARACTERS = [
   { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/1.02464a56.png', name: 'Blaze', accent: '#F4845F' },
@@ -20,6 +22,8 @@ const NAV_LINKS = [
 
 export default function Hero() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const startPath = user ? '/upload' : '/login';
   const [isMobile, setIsMobile] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
   const [charFade, setCharFade] = useState(true);
@@ -75,7 +79,8 @@ export default function Hero() {
               ))}
             </nav>
           )}
-          <button onClick={() => navigate('/upload')} style={{ padding: '9px 22px', borderRadius: 10, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>Get Started</button>
+          <button onClick={() => navigate(startPath)} style={{ padding: '9px 22px', borderRadius: 10, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>Get Started</button>
+          <UserMenu />
         </header>
 
         {/* HERO CONTENT — split layout */}
@@ -98,7 +103,7 @@ export default function Hero() {
               </p>
 
               <div style={{ display: 'flex', gap: 12, justifyContent: isMobile ? 'center' : 'flex-start', flexWrap: 'wrap', marginBottom: 24 }}>
-                <button onClick={() => navigate('/upload')} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 32px', borderRadius: 12, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(244,132,95,0.4)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                <button onClick={() => navigate(startPath)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 32px', borderRadius: 12, backgroundColor: '#F4845F', border: 'none', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(244,132,95,0.4)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
                   Start Interview <ArrowRight size={18} />
                 </button>
                 <button onClick={() => scrollTo('how-it-works')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 24px', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all 200ms' }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}>
@@ -107,7 +112,7 @@ export default function Hero() {
               </div>
 
               <div style={{ display: 'flex', gap: 20, justifyContent: isMobile ? 'center' : 'flex-start', flexWrap: 'wrap' }}>
-                {['Free to use', 'No sign-up', 'Instant results'].map(t => (
+                {['Free to use', 'Instant feedback', 'AI-powered'].map(t => (
                   <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                     <CheckCircle size={13} style={{ color: '#6BBF7A' }} />
                     <span style={{ color: '#8b949e', fontSize: 12 }}>{t}</span>

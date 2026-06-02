@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInterview } from '../context/InterviewContext';
 import { extractTextFromPDF } from '../services/resumeParser';
 import { analyzeResume } from '../services/groq';
+import UserMenu from '../components/UserMenu';
 
 export default function ResumeUpload() {
   const navigate = useNavigate();
@@ -109,8 +110,11 @@ export default function ResumeUpload() {
         position: 'relative', zIndex: 10,
         borderBottom: '1px solid rgba(255,255,255,0.04)',
       }}>
-        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>TOONHUB</button>
-        <span style={{ fontSize: 11, fontWeight: 500, color: '#8b949e', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>STEP 1 OF 3</span>
+        <button onClick={() => navigate('/')} style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' as const, background: 'none', border: 'none', cursor: 'pointer' }}>InterviewAI</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 500, color: '#8b949e', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>STEP 1 OF 3</span>
+          <UserMenu />
+        </div>
       </header>
 
       {/* ─── MAIN ─── */}
