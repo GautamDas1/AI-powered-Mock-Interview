@@ -6,13 +6,14 @@ import { useInterview } from '../context/InterviewContext';
 import { evaluateAnswer } from '../services/groq';
 import { startListening, stopListening, speak, stopSpeaking, isSpeechSupported } from '../services/speech';
 import UserMenu from '../components/UserMenu';
+import { trackAnswerSubmitted, trackInterviewCompleted } from '../services/analyticsEvents';
 
 const GRAIN_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E`;
 const COLORS = ['#F4845F', '#6BBF7A', '#E882B4', '#6EB5FF'];
 
 export default function InterviewRoom() {
   const navigate = useNavigate();
-  const { questions, addResult } = useInterview();
+  const { questions, addResult, interviewMode, results } = useInterview();
   const [currentQ, setCurrentQ] = useState(0);
   const [answer, setAnswer] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -83,6 +84,7 @@ export default function InterviewRoom() {
         sampleAnswer: evaluation.sampleAnswer ?? '',
       });
       setLastFeedback(evaluation); setShowFeedback(true);
+      trackAnswerSubmitted(currentQ + 1, evaluation.score ?? 5);
     } catch {
       const fallback = { score: 0, feedback: 'Evaluation unavailable', strengths: [], improvements: [], confidenceIndicators: { clarity: 0, depth: 0, relevance: 0, communication: 0 }, sampleAnswer: '' };
       addResult({
@@ -101,7 +103,15 @@ export default function InterviewRoom() {
     } finally { setIsEvaluating(false); }
   };
 
-  const handleNext = () => { if (isLastQuestion) navigate('/dashboard'); else setCurrentQ(q => q + 1); };
+  const handleNext = () => {
+    if (isLastQuestion) {
+      const avgScore = results.length ? Math.round(results.reduce((s, r) => s + r.score, 0) / results.length * 10) : 0;
+      trackInterviewCompleted(interviewMode, avgScore, questions.length);
+      navigate('/dashboard');
+    } else {
+      setCurrentQ(q => q + 1);
+    }
+  };
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   if (!question) return null;

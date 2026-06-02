@@ -6,6 +6,7 @@ import { useInterview } from '../context/InterviewContext';
 import { extractTextFromPDF } from '../services/resumeParser';
 import { analyzeResume } from '../services/groq';
 import UserMenu from '../components/UserMenu';
+import { trackResumeUploaded } from '../services/analyticsEvents';
 
 export default function ResumeUpload() {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ export default function ResumeUpload() {
       setResumeData(data);
       setParsedData(data);
       setAnalysisComplete(true);
+      trackResumeUploaded();
     } catch (err) {
       setError(`Analysis failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {

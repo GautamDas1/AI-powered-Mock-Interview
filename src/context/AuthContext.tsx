@@ -6,6 +6,7 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
+import { trackSignIn, trackSignOut } from '../services/analyticsEvents';
 
 interface AuthContextType {
   user: User | null;
@@ -30,10 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, googleProvider);
+    trackSignIn('google');
   };
 
   const logout = async () => {
     await signOut(auth);
+    trackSignOut();
   };
 
   return (

@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
-import { Trophy, Target, TrendingUp, BookOpen, ArrowRight, Loader2, RotateCcw, Home, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trophy, Target, TrendingUp, BookOpen, ArrowRight, Loader2, RotateCcw, Home, ChevronDown, ChevronUp, History, Clock } from 'lucide-react';
 import { useInterview } from '../context/InterviewContext';
 import { generateRoadmap } from '../services/groq';
 import UserMenu from '../components/UserMenu';
+import { useAuth } from '../context/AuthContext';
+import { saveInterviewSession, getUserInterviews, type InterviewSession } from '../services/firestore';
+import { trackDashboardViewed } from '../services/analyticsEvents';
 
 const COLORS = ['#F4845F', '#6BBF7A', '#E882B4', '#6EB5FF'];
 
@@ -18,10 +21,14 @@ function getScoreColor(score: number) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { results, resumeData, roadmap, setRoadmap, resetInterview } = useInterview();
+  const { results, resumeData, roadmap, setRoadmap, resetInterview, interviewMode } = useInterview();
+  const { user } = useAuth();
   const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(false);
   const [roadmapError, setRoadmapError] = useState<string | null>(null);
   const [expandedQ, setExpandedQ] = useState<number | null>(null);
+  const [pastInterviews, setPastInterviews] = useState<InterviewSession[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [savedCurrent, setSavedCurrent] = useState(false);
 
   useEffect(() => {
     if (!results.length) { navigate('/setup'); return; }
@@ -34,6 +41,32 @@ export default function Dashboard() {
         .finally(() => setIsLoadingRoadmap(false));
     }
   }, [results, resumeData, roadmap, setRoadmap, navigate]);
+
+  /* Save current interview to Firestore (once) */
+  useEffect(() => {
+    if (!user || !results.length || savedCurrent) return;
+    setSavedCurrent(true);
+    saveInterviewSession(
+      user.uid,
+      user.displayName ?? 'User',
+      user.email ?? '',
+      resumeData!,
+      interviewMode,
+      results,
+      roadmap,
+    ).catch(() => { /* non-critical */ });
+    trackDashboardViewed();
+  }, [user, results, savedCurrent, resumeData, interviewMode, roadmap]);
+
+  /* Load past interview history */
+  useEffect(() => {
+    if (!user) return;
+    setIsLoadingHistory(true);
+    getUserInterviews(user.uid)
+      .then(sessions => setPastInterviews(sessions))
+      .catch(() => { /* non-critical */ })
+      .finally(() => setIsLoadingHistory(false));
+  }, [user, savedCurrent]);
 
   const avgScore = results.length ? Math.round(results.reduce((s, r) => s + r.score, 0) / results.length * 10) : 0;
 
@@ -307,6 +340,76 @@ export default function Dashboard() {
             Back to Home <ArrowRight size={15} />
           </button>
         </div>
+
+        {/* ─── INTERVIEW HISTORY ─── */}
+        {pastInterviews.length > 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(110,181,255,0.1)' }}>
+                <History size={14} style={{ color: '#6EB5FF' }} />
+              </div>
+              <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: 20, color: 'white', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Past Interviews</h2>
+              <span style={{ marginLeft: 'auto', color: '#8b949e', fontSize: 11, fontWeight: 600 }}>{pastInterviews.length} session{pastInterviews.length !== 1 ? 's' : ''}</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {pastInterviews.slice(0, 10).map((session, i) => {
+                const date = session.completedAt
+                  ? new Date((session.completedAt as unknown as { seconds: number }).seconds * 1000)
+                  : null;
+                return (
+                  <div key={session.id ?? i} style={{ ...cardBg, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                    {/* Score circle */}
+                    <div style={{
+                      flexShrink: 0, width: 42, height: 42, borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      backgroundColor: `${getScoreColor(session.avgScore / 10)}15`,
+                      border: `2px solid ${getScoreColor(session.avgScore / 10)}`,
+                    }}>
+                      <span style={{ color: getScoreColor(session.avgScore / 10), fontSize: 14, fontWeight: 900 }}>{session.avgScore}%</span>
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{
+                          padding: '3px 10px', borderRadius: 6, fontSize: 9, fontWeight: 700,
+                          letterSpacing: '0.08em', textTransform: 'uppercase',
+                          backgroundColor: session.interviewMode === 'technical' ? 'rgba(110,181,255,0.1)' : session.interviewMode === 'hr' ? 'rgba(232,130,180,0.1)' : 'rgba(107,191,122,0.1)',
+                          color: session.interviewMode === 'technical' ? '#6EB5FF' : session.interviewMode === 'hr' ? '#E882B4' : '#6BBF7A',
+                        }}>
+                          {session.interviewMode}
+                        </span>
+                        <span style={{ color: '#8b949e', fontSize: 11 }}>{session.questionCount} questions</span>
+                      </div>
+                      {date && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#8b949e', fontSize: 11 }}>
+                          <Clock size={11} />
+                          {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {' · '}
+                          {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Best score */}
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ color: '#8b949e', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Best</p>
+                      <p style={{ color: 'white', fontSize: 16, fontWeight: 800 }}>{session.bestScore}/10</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {isLoadingHistory && (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }}>
+                <Loader2 size={18} className="animate-spin" style={{ color: '#8b949e' }} />
+              </div>
+            )}
+          </motion.div>
+        )}
+
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Code2, Users, Shuffle, Zap, ArrowRight, Loader2 } from 'lucide-react';
 import { useInterview } from '../context/InterviewContext';
 import { generateQuestions } from '../services/groq';
 import UserMenu from '../components/UserMenu';
+import { trackInterviewStarted, trackModeSelected } from '../services/analyticsEvents';
 
 const MODES = [
   { id: 'technical' as const, label: 'TECHNICAL', icon: Code2, color: '#6EB5FF', desc: 'Data structures, algorithms, system design, coding concepts', bg: 'rgba(110,181,255,0.1)', border: 'rgba(110,181,255,0.3)' },
@@ -18,6 +19,7 @@ export default function InterviewSetup() {
   const navigate = useNavigate();
   const { resumeData, interviewMode, setInterviewMode, setQuestions } = useInterview();
   const [selectedMode, setSelectedMode] = useState(interviewMode);
+  const handleModeChange = (mode: typeof interviewMode) => { setSelectedMode(mode); trackModeSelected(mode); };
   const [questionCount, setQuestionCount] = useState(5);
   const [isGenerating, setIsGenerating] = useState(false);
   const [setupError, setSetupError] = useState('');
@@ -38,6 +40,7 @@ export default function InterviewSetup() {
         return;
       }
       setQuestions(questions);
+      trackInterviewStarted(selectedMode, questionCount);
       navigate('/interview');
     } catch {
       setSetupError('Failed to generate questions. Please check your connection and try again.');
@@ -107,7 +110,7 @@ export default function InterviewSetup() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
-                  onClick={() => setSelectedMode(mode.id)}
+                  onClick={() => handleModeChange(mode.id)}
                   style={{
                     position: 'relative',
                     padding: '24px 20px',
