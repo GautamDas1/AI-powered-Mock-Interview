@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { LogOut, ChevronDown, User } from 'lucide-react';
+import { LogOut, ChevronDown, User, History, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -107,6 +107,38 @@ export default function UserMenu() {
               </div>
             </div>
           </div>
+
+          {/* Menu items */}
+          <button
+            onClick={() => { setOpen(false); navigate('/history'); }}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: '11px 16px', background: 'none', border: 'none',
+              color: '#e6edf3', fontSize: 13, fontWeight: 500,
+              cursor: 'pointer', textAlign: 'left', transition: 'background 150ms',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+          >
+            <History size={15} style={{ opacity: 0.7 }} />
+            Interview History
+          </button>
+
+          <button
+            onClick={() => { setOpen(false); navigate('/upload'); }}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: '11px 16px', background: 'none', border: 'none',
+              color: '#e6edf3', fontSize: 13, fontWeight: 500,
+              cursor: 'pointer', textAlign: 'left', transition: 'background 150ms',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+          >
+            <ArrowRight size={15} style={{ opacity: 0.7 }} />
+            New Interview
+          </button>
 
           {/* Sign out */}
           <button

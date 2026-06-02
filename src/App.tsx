@@ -10,6 +10,7 @@ import InterviewRoom from './pages/InterviewRoom';
 import Dashboard from './pages/Dashboard';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
+import InterviewHistory from './pages/InterviewHistory';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/setup"     element={<ProtectedRoute><InterviewSetup /></ProtectedRoute>} />
             <Route path="/interview" element={<ProtectedRoute><InterviewRoom /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/history"   element={<ProtectedRoute><InterviewHistory /></ProtectedRoute>} />
           </Routes>
         </Router>
       </InterviewProvider>
