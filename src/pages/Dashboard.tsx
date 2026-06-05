@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
@@ -43,9 +43,10 @@ export default function Dashboard() {
   }, [results, resumeData, roadmap, setRoadmap, navigate]);
 
   /* Save current interview to Firestore (once) */
+  const hasSavedRef = useRef(false);
   useEffect(() => {
-    if (!user || !results.length || savedCurrent) return;
-    setSavedCurrent(true);
+    if (!user || !results.length || hasSavedRef.current) return;
+    hasSavedRef.current = true;
     saveInterviewSession(
       user.uid,
       user.displayName ?? 'User',
@@ -54,9 +55,10 @@ export default function Dashboard() {
       interviewMode,
       results,
       roadmap,
-    ).catch(() => { /* non-critical */ });
+    ).then(() => setSavedCurrent(true))
+     .catch(() => { hasSavedRef.current = false; /* allow retry */ });
     trackDashboardViewed();
-  }, [user, results, savedCurrent, resumeData, interviewMode, roadmap]);
+  }, [user, results, resumeData, interviewMode, roadmap]);
 
   /* Load past interview history */
   useEffect(() => {
