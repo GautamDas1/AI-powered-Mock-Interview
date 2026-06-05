@@ -1,6 +1,8 @@
 import {
   collection,
   addDoc,
+  doc,
+  getDoc,
   query,
   where,
   orderBy,
@@ -74,4 +76,11 @@ export async function getUserInterviews(userId: string): Promise<InterviewSessio
     id: doc.id,
     ...doc.data(),
   })) as InterviewSession[];
+}
+
+/* ── Load a single interview session by ID ── */
+export async function getInterviewById(interviewId: string): Promise<InterviewSession | null> {
+  const docSnap = await getDoc(doc(db, 'interviews', interviewId));
+  if (!docSnap.exists()) return null;
+  return { id: docSnap.id, ...docSnap.data() } as InterviewSession;
 }

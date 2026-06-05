@@ -167,16 +167,18 @@ export default function InterviewHistory() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.04 }}
+                    onClick={() => session.id && navigate(`/history/${session.id}`)}
                     style={{
                       ...cardBg,
                       padding: '16px 20px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 16,
-                      transition: 'border-color 200ms',
+                      cursor: 'pointer',
+                      transition: 'border-color 200ms, transform 150ms',
                     }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.12)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.06)'; }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; }}
                   >
                     {/* Score circle */}
                     <div style={{
@@ -212,15 +214,9 @@ export default function InterviewHistory() {
                       )}
                     </div>
 
-                    {/* Score trend indicator */}
-                    <div style={{ flexShrink: 0, textAlign: 'center' }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 8,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        backgroundColor: `${getScoreColor(session.avgScore)}10`,
-                      }}>
-                        <TrendingUp size={16} style={{ color: getScoreColor(session.avgScore) }} />
-                      </div>
+                    {/* Arrow indicator */}
+                    <div style={{ flexShrink: 0 }}>
+                      <ArrowRight size={16} style={{ color: '#8b949e', opacity: 0.4 }} />
                     </div>
                   </motion.div>
                 );
