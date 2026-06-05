@@ -12,12 +12,14 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import InterviewHistory from './pages/InterviewHistory';
 import InterviewDetail from './pages/InterviewDetail';
+import AnalyticsTracker from './components/AnalyticsTracker';
 
 function App() {
   return (
     <AuthProvider>
       <InterviewProvider>
         <Router>
+          <AnalyticsTracker />
           <Routes>
             {/* Public */}
             <Route path="/" element={<Hero />} />
